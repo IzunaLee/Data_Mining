@@ -1,0 +1,39 @@
+import requests
+import time
+
+# Telegram Bot 設定
+TELEGRAM_TOKEN = '7871418433:AAERCA5plqqWRI7sdv7sCDwYqXd2qO0QJLU'  # 替換為你的新Token
+CHAT_ID = '8051597141'  # 替換為你的聊天 ID
+
+# 目標網址與關鍵字
+URL = 'https://examweb.sfi.org.tw/regexam/other/WainingList.aspx'
+KEYWORD = '證券商業務員'
+
+# 發送訊息到 Telegram
+def send_telegram_message(message):
+    url = f'https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage'
+    payload = {'chat_id': CHAT_ID, 'text': message}
+    response = requests.post(url, data=payload)
+    return response.json()
+
+# 檢查網站是否包含關鍵字
+def check_website():
+    try:
+        response = requests.get(URL)
+        if response.status_code == 200:
+            page_text = response.text
+            if KEYWORD in page_text:
+                send_telegram_message(f"偵測到關鍵字「{KEYWORD}」出現在網站上了！")
+        else:
+            print("無法訪問網站，請檢查 URL 是否正確。")
+    except Exception as e:
+        print(f"錯誤：{e}")
+
+# 每 10 分鐘檢查一次網站
+def main():
+    while True:
+        check_website()
+        time.sleep(60)  # 每 60 秒檢查一次
+
+# 執行主程式
+main()
